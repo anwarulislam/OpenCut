@@ -52,6 +52,12 @@ export interface TimelineElementProps {
   isSelected: boolean;
   onElementMouseDown: (e: React.MouseEvent, element: TimelineElement) => void;
   onElementClick: (e: React.MouseEvent, element: TimelineElement) => void;
+  // Slip/slide editing props
+  editingMode?: "normal" | "slip" | "slide";
+  onSlipStart?: (e: React.MouseEvent, element: TimelineElement) => void;
+  onSlideStart?: (e: React.MouseEvent, element: TimelineElement) => void;
+  isSlipSlideEditing?: boolean;
+  editingElementId?: string | null;
 }
 
 export interface ResizeState {

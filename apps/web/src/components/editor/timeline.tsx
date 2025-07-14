@@ -33,6 +33,7 @@ import { useMediaStore } from "@/stores/media-store";
 import { usePlaybackStore } from "@/stores/playback-store";
 import { useProjectStore } from "@/stores/project-store";
 import { useTimelineZoom } from "@/hooks/use-timeline-zoom";
+import { useSlipSlideEditing } from "@/hooks/use-slip-slide-editing";
 import { processMediaFiles } from "@/lib/media-processing";
 import { toast } from "sonner";
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -49,6 +50,7 @@ import {
   useTimelinePlayheadRuler,
 } from "./timeline-playhead";
 import { SelectionBox } from "./selection-box";
+import { SlipSlideToolbar } from "./slip-slide-toolbar";
 import { useSelectionBox } from "@/hooks/use-selection-box";
 import type { DragData, TimelineTrack } from "@/types/timeline";
 import {
@@ -78,6 +80,9 @@ export function Timeline() {
     separateAudio,
     undo,
     redo,
+    updateElementTrim,
+    updateElementStartTime,
+    updateElementDuration,
   } = useTimelineStore();
   const { mediaItems, addMediaItem } = useMediaStore();
   const { activeProject } = useProjectStore();
@@ -95,6 +100,26 @@ export function Timeline() {
   const { zoomLevel, setZoomLevel, handleWheel } = useTimelineZoom({
     containerRef: timelineRef,
     isInTimeline,
+  });
+
+  const [currentEditingMode, setCurrentEditingMode] = useState<"normal" | "slip" | "slide">("normal");
+
+  // Slip/slide editing functionality
+  const {
+    editingMode,
+    isSlipSlideEditing,
+    canSlipElement,
+    startSlipEditing,
+    startSlideEditing,
+    endSlipSlideEditing,
+    cancelSlipSlideEditing,
+    editingElementId,
+  } = useSlipSlideEditing({
+    tracks,
+    zoomLevel,
+    onUpdateTrim: updateElementTrim,
+    onUpdateElementStartTime: updateElementStartTime,
+    onUpdateElementDuration: updateElementDuration,
   });
 
   // Old marquee selection removed - using new SelectionBox component instead
@@ -309,6 +334,46 @@ export function Timeline() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [redo]);
+
+  // Keyboard shortcuts for slip/slide editing modes
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger when typing in input fields or textareas
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      // Only trigger when timeline is focused or mouse is over timeline
+      if (
+        !isInTimeline &&
+        !timelineRef.current?.contains(document.activeElement)
+      ) {
+        return;
+      }
+
+      // Don't switch modes while actively slip/slide editing
+      if (isSlipSlideEditing) {
+        return;
+      }
+
+      // Mode switching shortcuts
+      if (e.key === "1" && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        setCurrentEditingMode("normal");
+      } else if (e.key === "2" && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        setCurrentEditingMode("slip");
+      } else if (e.key === "3" && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        setCurrentEditingMode("slide");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isInTimeline, isSlipSlideEditing]);
 
   // Old marquee system removed - using new SelectionBox component instead
 
@@ -687,6 +752,12 @@ export function Timeline() {
     >
       {/* Toolbar */}
       <div className="border-b flex items-center px-2 py-1 gap-1">
+        {/* Slip/Slide Mode Toolbar */}
+        <SlipSlideToolbar
+          currentMode={currentEditingMode}
+          onModeChange={setCurrentEditingMode}
+          isEditing={isSlipSlideEditing}
+        />
         <TooltipProvider delayDuration={500}>
           {/* Play/Pause Button */}
           <Tooltip>
@@ -1016,6 +1087,11 @@ export function Timeline() {
                             <TimelineTrackContent
                               track={track}
                               zoomLevel={zoomLevel}
+                              editingMode={currentEditingMode}
+                              onSlipStart={(e, element) => startSlipEditing(e, element, track.id)}
+                              onSlideStart={(e, element) => startSlideEditing(e, element, track.id)}
+                              isSlipSlideEditing={isSlipSlideEditing}
+                              editingElementId={editingElementId}
                             />
                           </div>
                         </ContextMenuTrigger>

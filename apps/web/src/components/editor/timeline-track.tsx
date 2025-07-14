@@ -26,9 +26,19 @@ import { useProjectStore } from "@/stores/project-store";
 export function TimelineTrackContent({
   track,
   zoomLevel,
+  editingMode = "normal",
+  onSlipStart,
+  onSlideStart,
+  isSlipSlideEditing = false,
+  editingElementId = null,
 }: {
   track: TimelineTrack;
   zoomLevel: number;
+  editingMode?: "normal" | "slip" | "slide";
+  onSlipStart?: (e: React.MouseEvent, element: TimelineElementType) => void;
+  onSlideStart?: (e: React.MouseEvent, element: TimelineElementType) => void;
+  isSlipSlideEditing?: boolean;
+  editingElementId?: string | null;
 }) {
   const { mediaItems } = useMediaStore();
   const {
@@ -946,6 +956,11 @@ export function TimelineTrackContent({
                   isSelected={isSelected}
                   onElementMouseDown={handleElementMouseDown}
                   onElementClick={handleElementClick}
+                  editingMode={editingMode}
+                  onSlipStart={onSlipStart}
+                  onSlideStart={onSlideStart}
+                  isSlipSlideEditing={isSlipSlideEditing}
+                  editingElementId={editingElementId}
                 />
               );
             })}

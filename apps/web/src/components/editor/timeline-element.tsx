@@ -21,6 +21,7 @@ import AudioWaveform from "./audio-waveform";
 import { toast } from "sonner";
 import { TimelineElementProps, TrackType } from "@/types/timeline";
 import { useTimelineElementResize } from "@/hooks/use-timeline-element-resize";
+import { EditingMode } from "@/hooks/use-slip-slide-editing";
 import {
   getTrackElementClasses,
   TIMELINE_CONSTANTS,
@@ -50,6 +51,11 @@ export function TimelineElement({
   isSelected,
   onElementMouseDown,
   onElementClick,
+  editingMode = "normal",
+  onSlipStart,
+  onSlideStart,
+  isSlipSlideEditing = false,
+  editingElementId = null,
 }: TimelineElementProps) {
   const { mediaItems } = useMediaStore();
   const {
@@ -323,6 +329,17 @@ export function TimelineElement({
   };
 
   const handleElementMouseDown = (e: React.MouseEvent) => {
+    // Handle slip/slide editing modes
+    if (editingMode === "slip" && e.altKey && onSlipStart) {
+      onSlipStart(e, element);
+      return;
+    }
+    
+    if (editingMode === "slide" && e.shiftKey && onSlideStart) {
+      onSlideStart(e, element);
+      return;
+    }
+
     if (onElementMouseDown) {
       onElementMouseDown(e, element);
     }
@@ -350,6 +367,10 @@ export function TimelineElement({
               track.type
             )} ${isSelected ? "border-b-[0.5px] border-t-[0.5px] border-foreground" : ""} ${
               isBeingDragged ? "z-50" : "z-10"
+            } ${
+              isSlipSlideEditing && editingElementId === element.id
+                ? "ring-2 ring-blue-400 ring-opacity-75"
+                : ""
             }`}
             onClick={(e) => onElementClick && onElementClick(e, element)}
             onMouseDown={handleElementMouseDown}

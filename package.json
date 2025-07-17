@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "dev:desktop": "cd apps/desktop && bun tauri dev",
     "check-types": "turbo run check-types",
     "lint": "turbo run lint",
     "format": "turbo run format"

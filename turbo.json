@@ -3,12 +3,29 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**"],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "out/**",
+        "src-tauri/target/**"
+      ],
       "env": [
         "DATABASE_URL",
         "BETTER_AUTH_SECRET",
         "UPSTASH_REDIS_REST_URL",
-        "UPSTASH_REDIS_REST_TOKEN"
+        "UPSTASH_REDIS_REST_TOKEN",
+        "BUILD_TARGET"
+      ]
+    },
+    "build:desktop": {
+      "dependsOn": ["^build:desktop"],
+      "outputs": ["out/**"],
+      "env": [
+        "DATABASE_URL",
+        "BETTER_AUTH_SECRET",
+        "UPSTASH_REDIS_REST_URL",
+        "UPSTASH_REDIS_REST_TOKEN",
+        "BUILD_TARGET"
       ]
     },
     "check-types": {

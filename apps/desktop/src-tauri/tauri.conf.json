@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "identifier": "com.opencut.app",
   "build": {
-    "beforeDevCommand": "bun run dev",
-    "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "bun run build",
-    "frontendDist": "../dist"
+    "beforeDevCommand": "cd ../web && bun dev",
+    "devUrl": "http://localhost:3000",
+    "beforeBuildCommand": "cd ../web && bun build:desktop",
+    "frontendDist": "../web/out"
   },
   "app": {
     "windows": [

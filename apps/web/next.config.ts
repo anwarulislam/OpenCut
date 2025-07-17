@@ -7,7 +7,8 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: true,
   productionBrowserSourceMaps: true,
-  output: "standalone",
+  output: process.env.BUILD_TARGET === "desktop" ? "export" : "standalone",
+  trailingSlash: process.env.BUILD_TARGET === "desktop" ? true : false,
   images: {
     remotePatterns: [
       {
@@ -19,6 +20,9 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
       },
     ],
+    ...(process.env.BUILD_TARGET === "desktop" && {
+      unoptimized: true,
+    }),
   },
 };
 

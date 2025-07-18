@@ -140,7 +140,7 @@ export function Handlebars({
         </div>
 
         <motion.div
-          className="relative overflow-hidden rounded-2xl"
+          className="relative overflow-hidden rounded-2xl select-none"
           style={{
             width: visibleWidth,
             x: leftHandleX,
@@ -148,7 +148,7 @@ export function Handlebars({
           }}
         >
           <motion.div
-            className="w-full h-full flex items-center justify-center px-4"
+            className="w-full h-full flex items-center justify-center px-4 select-none"
             style={{
               x: contentLeft,
               width: contentWidth,
@@ -161,4 +161,4 @@ export function Handlebars({
       </div>
     </div>
   );
-};
+}
